@@ -128,7 +128,7 @@ mod sudoku_tests {
     }
 
     #[test]
-    fn test_get_slice_for_quad_ok_nine_elements() {
+    fn get_slice_for_quad_ok_nine_elements() {
         let mut input = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
 
         let quad_slice = Sudoku::get_slice_for_quad(&mut input).unwrap();
@@ -139,7 +139,7 @@ mod sudoku_tests {
     }
 
     #[test]
-    fn test_get_slice_for_quad_ok_over_nine_elements() {
+    fn get_slice_for_quad_ok_over_nine_elements() {
         let mut input = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4];
 
         let quad_slice = Sudoku::get_slice_for_quad(&mut input).unwrap();
@@ -150,7 +150,7 @@ mod sudoku_tests {
     }
 
     #[test]
-    fn test_get_slice_for_quad_err() {
+    fn get_slice_for_quad_err() {
         let mut input = vec![1, 2, 3, 4, 5, 6, 7, 8];
 
         let result = Sudoku::get_slice_for_quad(&mut input).unwrap_err();
