@@ -1,5 +1,5 @@
 use crate::sudoku::quadrant::Quadrant;
-use crate::{InputNumber, SNumber};
+use crate::{InputNumber, QuadVector, SNumber};
 use error_mapper::{create_new_error, TheResult};
 
 mod quadrant;
@@ -19,13 +19,17 @@ pub struct Sudoku {
 
 impl Sudoku {
     pub(super) fn new(input: Vec<InputNumber>) -> TheResult<Self> {
-        
+
         //  Validate input length
         Self::validate_input_length(&input)?;
-        
+
         //  Validate input content
+        Self::validate_input_content(&input)?;
         
-        Ok(Self::default())
+        //  Map input to u8 vector
+        let mut mapped_input = Self::map_input_to_u8(input);
+
+        Ok(Self::build_quads_from_mapped_input(&mut mapped_input)?)
     }
 
     fn validate_input_length(input: &[InputNumber]) -> TheResult<()> {
@@ -48,7 +52,7 @@ impl Sudoku {
         if !input.iter().all(|num| *num <= 9 && *num >= 0) {
             return Err(create_new_error!("Input contained numbers out of Sudoku range"))
         }
-        
+
         Ok(())
     }
 
@@ -58,8 +62,34 @@ impl Sudoku {
             .map(|num| num as SNumber)
             .collect::<Vec<SNumber>>()
     }
+    
+    fn build_quads_from_mapped_input(input: &mut Vec<SNumber>) -> TheResult<Self> {
+        
+        //  Build all 9 quads from the mapped input vector
+        let quad_1 = Quadrant::new(Self::get_slice_for_quad(input)?)?;
+        let quad_2 = Quadrant::new(Self::get_slice_for_quad(input)?)?;
+        let quad_3 = Quadrant::new(Self::get_slice_for_quad(input)?)?;
+        let quad_4 = Quadrant::new(Self::get_slice_for_quad(input)?)?;
+        let quad_5 = Quadrant::new(Self::get_slice_for_quad(input)?)?;
+        let quad_6 = Quadrant::new(Self::get_slice_for_quad(input)?)?;
+        let quad_7 = Quadrant::new(Self::get_slice_for_quad(input)?)?;
+        let quad_8 = Quadrant::new(Self::get_slice_for_quad(input)?)?;
+        let quad_9 = Quadrant::new(Self::get_slice_for_quad(input)?)?;
+        
+        Ok(Self {
+            q1: quad_1,
+            q2: quad_2,
+            q3: quad_3,
+            q4: quad_4,
+            q5: quad_5,
+            q6: quad_6,
+            q7: quad_7,
+            q8: quad_8,
+            q9: quad_9,
+        })
+    }
 
-    fn get_slice_for_quad(input: &mut Vec<SNumber>) -> TheResult<Vec<SNumber>> {
+    fn get_slice_for_quad(input: &mut Vec<SNumber>) -> TheResult<QuadVector> {
         if input.len() < 9 {
             return Err(create_new_error!(
                 "Insufficient input length to obtain a slice for a quadrant"

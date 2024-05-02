@@ -1,4 +1,4 @@
-use crate::{InputNumber, SNumber};
+use crate::{QuadVector, SNumber};
 use error_mapper::{create_new_error, TheResult};
 
 #[derive(Default, Debug, Copy, Clone, PartialEq)]
@@ -15,7 +15,7 @@ pub(super) struct Quadrant {
 }
 
 impl Quadrant {
-    pub(super) fn new(input: Vec<SNumber>) -> TheResult<Self> {
+    pub(super) fn new(input: QuadVector) -> TheResult<Self> {
         //  Validate input length
         Self::validate_input_length(&input)?;
 
@@ -51,19 +51,17 @@ impl Quadrant {
     }
 
     fn map_input_to_quadrant(input: Vec<SNumber>) -> Self {
-        let mut quad = Self::default();
-
-        quad.c1 = input[0];
-        quad.c2 = input[1];
-        quad.c3 = input[2];
-        quad.c4 = input[3];
-        quad.c5 = input[4];
-        quad.c6 = input[5];
-        quad.c7 = input[6];
-        quad.c8 = input[7];
-        quad.c9 = input[8];
-
-        quad
+        Self {
+            c1: input[0],
+            c2: input[1],
+            c3: input[2],
+            c4: input[3],
+            c5: input[4],
+            c6: input[5],
+            c7: input[6],
+            c8: input[7],
+            c9: input[8],
+        }
     }
 }
 
