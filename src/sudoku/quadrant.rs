@@ -1,4 +1,4 @@
-use crate::SNumber;
+use crate::{InputNumber, SNumber};
 use error_mapper::{create_new_error, TheResult};
 
 #[derive(Default, Debug, Copy, Clone, PartialEq)]
@@ -20,11 +20,7 @@ impl Quadrant {
         Self::validate_input_length(&input)?;
 
         //  Validate numbers for input array
-        if !Self::validate_input_content(&input) {
-            return Err(create_new_error!(
-                "Input array contained numbers greater than 9 or smaller than zero!"
-            ));
-        }
+        Self::validate_input_content(&input)?;
 
         //  All good, return mapped quad
         Ok(Self::map_input_to_quadrant(input))
@@ -46,8 +42,12 @@ impl Quadrant {
         Ok(())
     }
 
-    fn validate_input_content(input: &[SNumber]) -> bool {
-        input.iter().all(|num| *num <= 9)
+    fn validate_input_content(input: &[SNumber]) -> TheResult<()> {
+        if !input.iter().all(|num| *num <= 9) {
+            return Err(create_new_error!("Input contained numbers out of Sudoku range"))
+        }
+
+        Ok(())
     }
 
     fn map_input_to_quadrant(input: Vec<SNumber>) -> Self {
@@ -111,7 +111,7 @@ mod quad_tests {
         let input = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
 
         //  Validation ok
-        assert_eq!(Quadrant::validate_input_content(&input), true)
+        assert_eq!(Quadrant::validate_input_content(&input).unwrap(), ())
     }
 
     #[test]
@@ -119,7 +119,7 @@ mod quad_tests {
         let input = vec![1, 0, 3, 4, 5, 0, 7, 8, 9];
 
         //  Validation ok
-        assert_eq!(Quadrant::validate_input_content(&input), true)
+        assert_eq!(Quadrant::validate_input_content(&input).unwrap(), ())
     }
 
     #[test]
@@ -127,7 +127,7 @@ mod quad_tests {
         let input = vec![1, 2, 3, 4, 5, 15, 7, 8, 9];
 
         //  Validation ok
-        assert_eq!(Quadrant::validate_input_content(&input), false)
+        assert_eq!(Quadrant::validate_input_content(&input).unwrap_err().error.error_content, "Input contained numbers out of Sudoku range")
     }
 
     #[test]
@@ -194,7 +194,7 @@ mod quad_tests {
 
         assert_eq!(
             Quadrant::new(input).unwrap_err().error.error_content,
-            "Input array contained numbers greater than 9 or smaller than zero!"
+            "Input contained numbers out of Sudoku range"
         );
     }
 }

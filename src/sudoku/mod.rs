@@ -18,7 +18,15 @@ pub struct Sudoku {
 }
 
 impl Sudoku {
-    pub(super) fn new(input: Vec<InputNumber>) {}
+    pub(super) fn new(input: Vec<InputNumber>) -> TheResult<Self> {
+        
+        //  Validate input length
+        Self::validate_input_length(&input)?;
+        
+        //  Validate input content
+        
+        Ok(Self::default())
+    }
 
     fn validate_input_length(input: &[InputNumber]) -> TheResult<()> {
         if input.len() > 81 {
@@ -36,8 +44,12 @@ impl Sudoku {
         Ok(())
     }
 
-    fn validate_input_content(input: &[InputNumber]) -> bool {
-        input.iter().all(|num| *num <= 9 && *num >= 0)
+    fn validate_input_content(input: &[InputNumber]) -> TheResult<()> {
+        if !input.iter().all(|num| *num <= 9 && *num >= 0) {
+            return Err(create_new_error!("Input contained numbers out of Sudoku range"))
+        }
+        
+        Ok(())
     }
 
     fn map_input_to_u8(input: Vec<InputNumber>) -> Vec<SNumber> {
@@ -100,7 +112,7 @@ mod sudoku_tests {
         let input = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
         //  Validation ok
-        assert_eq!(Sudoku::validate_input_content(&input), true)
+        assert_eq!(Sudoku::validate_input_content(&input).unwrap(), ())
     }
 
     #[test]
@@ -108,7 +120,7 @@ mod sudoku_tests {
         let input = vec![1, 2, 3, 4, 5, 0, 7, 8, 9, 1, 0, 3, 4, 5, 6, 0, 8, 9];
 
         //  Validation ok
-        assert_eq!(Sudoku::validate_input_content(&input), true)
+        assert_eq!(Sudoku::validate_input_content(&input).unwrap(), ())
     }
 
     #[test]
@@ -116,7 +128,7 @@ mod sudoku_tests {
         let input = vec![1, 2, 3, 4, 5, 15, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
         //  Validation ok
-        assert_eq!(Sudoku::validate_input_content(&input), false)
+        assert_eq!(Sudoku::validate_input_content(&input).unwrap_err().error.error_content, "Input contained numbers out of Sudoku range")
     }
 
     #[test]
@@ -124,7 +136,7 @@ mod sudoku_tests {
         let input = vec![1, 2, 3, 4, 5, -15, 7, 8, 9, 1, 2, 3, 4, -5, 6, 7, 8, 9];
 
         //  Validation ok
-        assert_eq!(Sudoku::validate_input_content(&input), false)
+        assert_eq!(Sudoku::validate_input_content(&input).unwrap_err().error.error_content, "Input contained numbers out of Sudoku range")
     }
 
     #[test]
