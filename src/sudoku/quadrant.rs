@@ -78,11 +78,7 @@ mod quad_tests {
     fn validate_input_length_ok() {
         let input = vec![9, 8, 7, 6, 5, 4, 3, 2, 1];
 
-        assert_eq!(
-            Quadrant::validate_input_length(&input)
-                .unwrap(),
-            ()
-        );
+        assert_eq!(Quadrant::validate_input_length(&input).unwrap(), ());
     }
     #[test]
     fn validate_input_length_err_length_longer() {

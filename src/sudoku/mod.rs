@@ -20,6 +20,22 @@ pub struct Sudoku {
 impl Sudoku {
     pub(super) fn new(input: Vec<InputNumber>) {}
 
+    fn validate_input_length(input: &[InputNumber]) -> TheResult<()> {
+        if input.len() > 81 {
+            return Err(create_new_error!(
+                "Input array length for a quadrant cannot be greater than 81!"
+            ));
+        }
+
+        if input.len() < 81 {
+            return Err(create_new_error!(
+                "Input array length for a quadrant cannot be smaller than 81!"
+            ));
+        }
+
+        Ok(())
+    }
+
     fn validate_input_content(input: &[InputNumber]) -> bool {
         input.iter().all(|num| *num <= 9 && *num >= 0)
     }
@@ -45,6 +61,71 @@ impl Sudoku {
 #[cfg(test)]
 mod sudoku_tests {
     use crate::sudoku::Sudoku;
+
+    #[test]
+    fn validate_input_length_ok() {
+        let input = vec![1; 81];
+
+        assert_eq!(Sudoku::validate_input_length(&input).unwrap(), ());
+    }
+
+    #[test]
+    fn validate_input_length_err_longer() {
+        let input = vec![1; 87];
+
+        assert_eq!(
+            Sudoku::validate_input_length(&input)
+                .unwrap_err()
+                .error
+                .error_content,
+            "Input array length for a quadrant cannot be greater than 81!"
+        );
+    }
+
+    #[test]
+    fn validate_input_length_err_shorter() {
+        let input = vec![1; 70];
+
+        assert_eq!(
+            Sudoku::validate_input_length(&input)
+                .unwrap_err()
+                .error
+                .error_content,
+            "Input array length for a quadrant cannot be smaller than 81!"
+        );
+    }
+
+    #[test]
+    fn validate_input_content_ok() {
+        let input = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+        //  Validation ok
+        assert_eq!(Sudoku::validate_input_content(&input), true)
+    }
+
+    #[test]
+    fn validate_input_content_ok_contains_zeroes() {
+        let input = vec![1, 2, 3, 4, 5, 0, 7, 8, 9, 1, 0, 3, 4, 5, 6, 0, 8, 9];
+
+        //  Validation ok
+        assert_eq!(Sudoku::validate_input_content(&input), true)
+    }
+
+    #[test]
+    fn validate_input_content_err_bigger_number() {
+        let input = vec![1, 2, 3, 4, 5, 15, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+        //  Validation ok
+        assert_eq!(Sudoku::validate_input_content(&input), false)
+    }
+
+    #[test]
+    fn validate_input_content_err_negative_number() {
+        let input = vec![1, 2, 3, 4, 5, -15, 7, 8, 9, 1, 2, 3, 4, -5, 6, 7, 8, 9];
+
+        //  Validation ok
+        assert_eq!(Sudoku::validate_input_content(&input), false)
+    }
 
     #[test]
     fn test_get_slice_for_quad_ok_nine_elements() {
@@ -80,37 +161,5 @@ mod sudoku_tests {
             result.error.error_content,
             "Insufficient input length to obtain a slice for a quadrant"
         );
-    }
-
-    #[test]
-    fn validate_input_content_ok() {
-        let input = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-        //  Validation ok
-        assert_eq!(Sudoku::validate_input_content(&input), true)
-    }
-
-    #[test]
-    fn validate_input_content_ok_contains_zeroes() {
-        let input = vec![1, 2, 3, 4, 5, 0, 7, 8, 9, 1, 0, 3, 4, 5, 6, 0, 8, 9];
-
-        //  Validation ok
-        assert_eq!(Sudoku::validate_input_content(&input), true)
-    }
-
-    #[test]
-    fn validate_input_content_err_bigger_number() {
-        let input = vec![1, 2, 3, 4, 5, 15, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-        //  Validation ok
-        assert_eq!(Sudoku::validate_input_content(&input), false)
-    }
-
-    #[test]
-    fn validate_input_content_err_negative_number() {
-        let input = vec![1, 2, 3, 4, 5, -15, 7, 8, 9, 1, 2, 3, 4, -5, 6, 7, 8, 9];
-
-        //  Validation ok
-        assert_eq!(Sudoku::validate_input_content(&input), false)
     }
 }
