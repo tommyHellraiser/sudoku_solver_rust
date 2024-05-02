@@ -44,7 +44,9 @@ impl Quadrant {
 
     fn validate_input_content(input: &[SNumber]) -> TheResult<()> {
         if !input.iter().all(|num| *num <= 9) {
-            return Err(create_new_error!("Input contained numbers out of Sudoku range"))
+            return Err(create_new_error!(
+                "Input contained numbers out of Sudoku range"
+            ));
         }
 
         Ok(())
@@ -125,7 +127,13 @@ mod quad_tests {
         let input = vec![1, 2, 3, 4, 5, 15, 7, 8, 9];
 
         //  Validation ok
-        assert_eq!(Quadrant::validate_input_content(&input).unwrap_err().error.error_content, "Input contained numbers out of Sudoku range")
+        assert_eq!(
+            Quadrant::validate_input_content(&input)
+                .unwrap_err()
+                .error
+                .error_content,
+            "Input contained numbers out of Sudoku range"
+        )
     }
 
     #[test]
