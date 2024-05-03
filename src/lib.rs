@@ -1,5 +1,5 @@
-use std::panic::panic_any;
 use crate::sudoku::Sudoku;
+use std::panic::panic_any;
 
 mod sudoku;
 
@@ -9,13 +9,10 @@ type QuadVector = Vec<SNumber>;
 
 //  TODO further define the return type for errors
 pub fn solve_sudoku_from_array(input: Vec<InputNumber>) -> Vec<SNumber> {
-    
-    let _sudoku = match Sudoku::new(input) {
+    let sudoku = match Sudoku::new(input) {
         Ok(sudoku) => sudoku,
-        Err(e) => {
-            panic_any(e.to_string())
-        }
+        Err(e) => panic_any(e.to_string()),
     };
-    
+
     vec![]
 }

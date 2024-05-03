@@ -6,15 +6,15 @@ mod quadrant;
 
 #[derive(Default, Debug, Copy, Clone, PartialEq)]
 pub struct Sudoku {
-    q1: Quadrant,
-    q2: Quadrant,
-    q3: Quadrant,
-    q4: Quadrant,
-    q5: Quadrant,
-    q6: Quadrant,
-    q7: Quadrant,
-    q8: Quadrant,
-    q9: Quadrant,
+    pub(crate) q1: Quadrant,
+    pub(crate) q2: Quadrant,
+    pub(crate) q3: Quadrant,
+    pub(crate) q4: Quadrant,
+    pub(crate) q5: Quadrant,
+    pub(crate) q6: Quadrant,
+    pub(crate) q7: Quadrant,
+    pub(crate) q8: Quadrant,
+    pub(crate) q9: Quadrant,
 }
 
 impl Sudoku {
@@ -103,6 +103,132 @@ impl Sudoku {
         }
 
         Ok(input.drain(0..9).collect())
+    }
+
+    fn get_row_array(&self, row_index: SNumber) -> TheResult<Vec<SNumber>> {
+
+        match row_index {
+            1 => {
+                let mut vec = self.q1.get_row_array(1)?;
+                vec.extend(self.q2.get_row_array(1)?);
+                vec.extend(self.q3.get_row_array(1)?);
+                Ok(vec)
+            },
+            2 => {
+                let mut vec = self.q1.get_row_array(2)?;
+                vec.extend(self.q2.get_row_array(2)?);
+                vec.extend(self.q3.get_row_array(2)?);
+                Ok(vec)
+            },
+            3 => {
+                let mut vec = self.q1.get_row_array(3)?;
+                vec.extend(self.q2.get_row_array(3)?);
+                vec.extend(self.q3.get_row_array(3)?);
+                Ok(vec)
+            },
+            4 => {
+                let mut vec = self.q4.get_row_array(1)?;
+                vec.extend(self.q5.get_row_array(1)?);
+                vec.extend(self.q6.get_row_array(1)?);
+                Ok(vec)
+            },
+            5 => {
+                let mut vec = self.q4.get_row_array(2)?;
+                vec.extend(self.q5.get_row_array(2)?);
+                vec.extend(self.q6.get_row_array(2)?);
+                Ok(vec)
+            },
+            6 => {
+                let mut vec = self.q4.get_row_array(31)?;
+                vec.extend(self.q5.get_row_array(3)?);
+                vec.extend(self.q6.get_row_array(3)?);
+                Ok(vec)
+            },
+            7 => {
+                let mut vec = self.q7.get_row_array(1)?;
+                vec.extend(self.q8.get_row_array(1)?);
+                vec.extend(self.q9.get_row_array(1)?);
+                Ok(vec)
+            },
+            8 => {
+                let mut vec = self.q7.get_row_array(2)?;
+                vec.extend(self.q8.get_row_array(2)?);
+                vec.extend(self.q9.get_row_array(2)?);
+                Ok(vec)
+            },
+            9 => {
+                let mut vec = self.q7.get_row_array(3)?;
+                vec.extend(self.q8.get_row_array(3)?);
+                vec.extend(self.q9.get_row_array(3)?);
+                Ok(vec)
+            }
+            _ => {
+                Err(create_new_error!("Index out of bounds!"))
+            }
+        }
+    }
+
+    fn get_col_array(&self, col_index: SNumber) -> TheResult<Vec<SNumber>> {
+
+        match col_index {
+            1 => {
+                let mut vec = self.q1.get_col_array(1)?;
+                vec.extend(self.q4.get_col_array(1)?);
+                vec.extend(self.q7.get_col_array(1)?);
+                Ok(vec)
+            },
+            2 => {
+                let mut vec = self.q1.get_col_array(2)?;
+                vec.extend(self.q4.get_col_array(2)?);
+                vec.extend(self.q7.get_col_array(2)?);
+                Ok(vec)
+            },
+            3 => {
+                let mut vec = self.q1.get_col_array(3)?;
+                vec.extend(self.q4.get_col_array(3)?);
+                vec.extend(self.q7.get_col_array(3)?);
+                Ok(vec)
+            },
+            4 => {
+                let mut vec = self.q2.get_col_array(1)?;
+                vec.extend(self.q5.get_col_array(1)?);
+                vec.extend(self.q8.get_col_array(1)?);
+                Ok(vec)
+            },
+            5 => {
+                let mut vec = self.q2.get_col_array(2)?;
+                vec.extend(self.q5.get_col_array(2)?);
+                vec.extend(self.q8.get_col_array(2)?);
+                Ok(vec)
+            },
+            6 => {
+                let mut vec = self.q2.get_col_array(31)?;
+                vec.extend(self.q5.get_col_array(3)?);
+                vec.extend(self.q8.get_col_array(3)?);
+                Ok(vec)
+            },
+            7 => {
+                let mut vec = self.q3.get_col_array(1)?;
+                vec.extend(self.q6.get_col_array(1)?);
+                vec.extend(self.q9.get_col_array(1)?);
+                Ok(vec)
+            },
+            8 => {
+                let mut vec = self.q3.get_col_array(2)?;
+                vec.extend(self.q6.get_col_array(2)?);
+                vec.extend(self.q9.get_col_array(2)?);
+                Ok(vec)
+            },
+            9 => {
+                let mut vec = self.q3.get_col_array(3)?;
+                vec.extend(self.q6.get_col_array(3)?);
+                vec.extend(self.q9.get_col_array(3)?);
+                Ok(vec)
+            }
+            _ => {
+                Err(create_new_error!("Index out of bounds!"))
+            }
+        }
     }
 }
 
@@ -288,7 +414,7 @@ mod sudoku_tests {
             "Insufficient input length to obtain a slice for a quadrant"
         );
     }
-    
+
     #[test]
     fn new_sudoku_ok() {
         let mut input = vec![];
@@ -300,10 +426,7 @@ mod sudoku_tests {
         let expected_quad = Quadrant::new(vec![1, 2, 3, 4, 5, 6, 7, 8, 9]).unwrap();
         let expected_sudoku = build_sudoku_from_single_quad(expected_quad);
 
-        assert_eq!(
-            Sudoku::new(input).unwrap(),
-            expected_sudoku
-        );
+        assert_eq!(Sudoku::new(input).unwrap(), expected_sudoku);
     }
 
     #[test]
@@ -317,10 +440,7 @@ mod sudoku_tests {
         let expected_quad = Quadrant::new(vec![1, 2, 0, 4, 0, 6, 0, 8, 0]).unwrap();
         let expected_sudoku = build_sudoku_from_single_quad(expected_quad);
 
-        assert_eq!(
-            Sudoku::new(input).unwrap(),
-            expected_sudoku
-        );
+        assert_eq!(Sudoku::new(input).unwrap(), expected_sudoku);
     }
 
     #[test]
@@ -377,6 +497,110 @@ mod sudoku_tests {
             Sudoku::new(input).unwrap_err().error.error_content,
             "Input contained numbers out of Sudoku range"
         );
+    }
+
+    #[test]
+    fn get_row_array_ok_1() {
+        let mut input = vec![];
+        for _ in 0..9 {
+            let sub_slice = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+            input.extend(sub_slice);
+        }
+
+        let sudoku = Sudoku::new(input).unwrap();
+
+        assert_eq!(sudoku.get_row_array(1).unwrap(), vec![1, 2, 3, 1, 2, 3, 1, 2, 3]);
+    }
+
+    #[test]
+    fn get_row_array_ok_2() {
+        let mut input = vec![];
+        for _ in 0..9 {
+            let sub_slice = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+            input.extend(sub_slice);
+        }
+
+        let sudoku = Sudoku::new(input).unwrap();
+
+        assert_eq!(sudoku.get_row_array(5).unwrap(), vec![4, 5, 6, 4, 5, 6, 4, 5, 6]);
+    }
+
+    #[test]
+    fn get_row_array_ok_3() {
+        let mut input = vec![];
+        for _ in 0..9 {
+            let sub_slice = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+            input.extend(sub_slice);
+        }
+
+        let sudoku = Sudoku::new(input).unwrap();
+
+        assert_eq!(sudoku.get_row_array(9).unwrap(), vec![7, 8, 9, 7, 8, 9, 7, 8, 9]);
+    }
+
+    #[test]
+    fn get_row_array_err() {
+        let mut input = vec![];
+        for _ in 0..9 {
+            let sub_slice = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+            input.extend(sub_slice);
+        }
+
+        let sudoku = Sudoku::new(input).unwrap();
+
+        assert_eq!(sudoku.get_row_array(10).unwrap_err().error.error_content, "Index out of bounds!");
+    }
+
+    #[test]
+    fn get_col_array_ok_1() {
+        let mut input = vec![];
+        for _ in 0..9 {
+            let sub_slice = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+            input.extend(sub_slice);
+        }
+
+        let sudoku = Sudoku::new(input).unwrap();
+
+        assert_eq!(sudoku.get_col_array(1).unwrap(), vec![1, 4, 7, 1, 4, 7, 1, 4, 7]);
+    }
+
+    #[test]
+    fn get_col_array_ok_2() {
+        let mut input = vec![];
+        for _ in 0..9 {
+            let sub_slice = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+            input.extend(sub_slice);
+        }
+
+        let sudoku = Sudoku::new(input).unwrap();
+
+        assert_eq!(sudoku.get_col_array(5).unwrap(), vec![2, 5, 8, 2, 5, 8, 2, 5, 8]);
+    }
+
+    #[test]
+    fn get_col_array_ok_3() {
+        let mut input = vec![];
+        for _ in 0..9 {
+            let sub_slice = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+            input.extend(sub_slice);
+        }
+
+        let sudoku = Sudoku::new(input).unwrap();
+
+        assert_eq!(sudoku.get_col_array(9).unwrap(), vec![3, 6, 9, 3, 6, 9, 3, 6, 9]);
+    }
+
+    #[test]
+    fn get_col_array_err() {
+        let mut input = vec![];
+        for _ in 0..9 {
+            let sub_slice = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+            input.extend(sub_slice);
+        }
+
+        let sudoku = Sudoku::new(input).unwrap();
+
+        assert_eq!(sudoku.get_col_array(10).unwrap_err().error.error_content, "Index out of bounds!");
     }
 
     fn build_sudoku_from_single_quad(quad: Quadrant) -> Sudoku {

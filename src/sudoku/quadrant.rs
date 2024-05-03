@@ -1,17 +1,18 @@
+use std::collections::HashSet;
 use crate::{QuadVector, SNumber};
 use error_mapper::{create_new_error, TheResult};
 
 #[derive(Default, Debug, Copy, Clone, PartialEq)]
-pub(super) struct Quadrant {
-    c1: SNumber,
-    c2: SNumber,
-    c3: SNumber,
-    c4: SNumber,
-    c5: SNumber,
-    c6: SNumber,
-    c7: SNumber,
-    c8: SNumber,
-    c9: SNumber,
+pub(crate) struct Quadrant {
+    pub(crate) c1: SNumber,
+    pub(crate) c2: SNumber,
+    pub(crate) c3: SNumber,
+    pub(crate) c4: SNumber,
+    pub(crate) c5: SNumber,
+    pub(crate) c6: SNumber,
+    pub(crate) c7: SNumber,
+    pub(crate) c8: SNumber,
+    pub(crate) c9: SNumber,
 }
 
 impl Quadrant {
@@ -49,6 +50,14 @@ impl Quadrant {
             ));
         }
 
+        //  Check for duplicates
+        let mut set = HashSet::new();
+        for item in input {
+            if *item != 0 && !set.insert(*item) {
+                return Err(create_new_error!("There were duplicate numbers in this input"))
+            }
+        }
+
         Ok(())
     }
 
@@ -63,6 +72,46 @@ impl Quadrant {
             c7: input[6],
             c8: input[7],
             c9: input[8],
+        }
+    }
+
+    fn is_number_available_in_quad(self, num: SNumber) -> bool {
+        if num == 0 {
+            return true
+        }
+
+        self.c1 != num
+            && self.c2 != num
+            && self.c3 != num
+            && self.c4 != num
+            && self.c5 != num
+            && self.c6 != num
+            && self.c7 != num
+            && self.c8 != num
+            && self.c9 != num
+    }
+    
+    pub(crate) fn get_row_array(&self, row_index: SNumber) -> TheResult<Vec<SNumber>> {
+        
+        match row_index {
+            1 => { Ok(vec![self.c1, self.c2, self.c3]) },
+            2 => { Ok(vec![self.c4, self.c5, self.c6]) },
+            3 => { Ok(vec![self.c7, self.c8, self.c9]) },
+            _ => {
+                Err(create_new_error!("Index out of bounds!"))
+            }
+        }
+    }
+    
+    pub(crate) fn get_col_array(&self, col_index: SNumber) -> TheResult<Vec<SNumber>> {
+        
+        match col_index {
+            1 => { Ok(vec![self.c1, self.c4, self.c7]) },
+            2 => { Ok(vec![self.c2, self.c5, self.c8]) },
+            3 => { Ok(vec![self.c3, self.c6, self.c9]) },
+            _ => {
+                Err(create_new_error!("Index out of bounds!"))
+            }
         }
     }
 }
@@ -137,6 +186,20 @@ mod quad_tests {
     }
 
     #[test]
+    fn validate_input_content_err_duplicates() {
+        let input = vec![1, 2, 3, 4, 5, 5, 7, 8, 9];
+
+        //  Validation ok
+        assert_eq!(
+            Quadrant::validate_input_content(&input)
+                .unwrap_err()
+                .error
+                .error_content,
+            "There were duplicate numbers in this input"
+        )
+    }
+
+    #[test]
     fn map_input_to_quad_ok() {
         let input = vec![9, 8, 7, 6, 5, 4, 3, 2, 1];
 
@@ -202,5 +265,103 @@ mod quad_tests {
             Quadrant::new(input).unwrap_err().error.error_content,
             "Input contained numbers out of Sudoku range"
         );
+    }
+
+    #[test]
+    fn new_quad_err_duplicate_numbers() {
+        let input = vec![9, 8, 1, 6, 5, 4, 3, 2, 1];
+
+        assert_eq!(
+            Quadrant::new(input).unwrap_err().error.error_content,
+            "There were duplicate numbers in this input"
+        );
+    }
+
+    #[test]
+    fn is_number_available_ok_not_available() {
+        let input = vec![9, 8, 7, 6, 5, 4, 3, 2, 1];
+        let quad = Quadrant::new(input).unwrap();
+
+        assert_eq!(quad.is_number_available_in_quad(7), false);
+    }
+
+    #[test]
+    fn is_number_available_ok_is_available() {
+        let input = vec![9, 0, 7, 0, 5, 4, 3, 0, 1];
+        let quad = Quadrant::new(input).unwrap();
+
+        assert_eq!(quad.is_number_available_in_quad(8), true);
+    }
+
+    #[test]
+    fn is_number_available_ok_is_zero() {
+        let input = vec![9, 0, 7, 0, 5, 4, 3, 0, 1];
+        let quad = Quadrant::new(input).unwrap();
+
+        assert_eq!(quad.is_number_available_in_quad(0), true);
+    }
+    
+    #[test]
+    fn get_row_array_ok_1() {
+        let input = vec![9, 8, 7, 6, 5, 4, 3, 2, 1];
+        let quad = Quadrant::new(input).unwrap();
+        
+        assert_eq!(quad.get_row_array(1).unwrap(), vec![9, 8, 7]);
+    }
+
+    #[test]
+    fn get_row_array_ok_2() {
+        let input = vec![9, 8, 7, 6, 5, 4, 3, 2, 1];
+        let quad = Quadrant::new(input).unwrap();
+
+        assert_eq!(quad.get_row_array(2).unwrap(), vec![6, 5, 4]);
+    }
+
+    #[test]
+    fn get_row_array_ok_3() {
+        let input = vec![9, 8, 7, 6, 5, 4, 3, 2, 1];
+        let quad = Quadrant::new(input).unwrap();
+
+        assert_eq!(quad.get_row_array(3).unwrap(), vec![3, 2, 1]);
+    }
+    
+    #[test]
+    fn get_row_array_err() {
+        let input = vec![9, 8, 7, 6, 5, 4, 3, 2, 1];
+        let quad = Quadrant::new(input).unwrap();
+        
+        assert_eq!(quad.get_row_array(5).unwrap_err().error.error_content, "Index out of bounds!");
+    }
+
+    #[test]
+    fn get_col_array_ok_1() {
+        let input = vec![9, 8, 7, 6, 5, 4, 3, 2, 1];
+        let quad = Quadrant::new(input).unwrap();
+
+        assert_eq!(quad.get_col_array(1).unwrap(), vec![9, 6, 3]);
+    }
+
+    #[test]
+    fn get_col_array_ok_2() {
+        let input = vec![9, 8, 7, 6, 5, 4, 3, 2, 1];
+        let quad = Quadrant::new(input).unwrap();
+
+        assert_eq!(quad.get_col_array(2).unwrap(), vec![8, 5, 2]);
+    }
+
+    #[test]
+    fn get_col_array_ok_3() {
+        let input = vec![9, 8, 7, 6, 5, 4, 3, 2, 1];
+        let quad = Quadrant::new(input).unwrap();
+
+        assert_eq!(quad.get_col_array(3).unwrap(), vec![7, 4, 1]);
+    }
+
+    #[test]
+    fn get_col_array_err() {
+        let input = vec![9, 8, 7, 6, 5, 4, 3, 2, 1];
+        let quad = Quadrant::new(input).unwrap();
+
+        assert_eq!(quad.get_col_array(5).unwrap_err().error.error_content, "Index out of bounds!");
     }
 }
