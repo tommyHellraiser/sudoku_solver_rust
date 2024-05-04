@@ -5,7 +5,6 @@ mod sudoku;
 
 type SNumber = u8;
 type InputNumber = i32;
-type QuadVector = Vec<SNumber>;
 
 //  TODO further define the return type for errors
 pub fn solve_sudoku_from_array(input: Vec<InputNumber>) -> Vec<SNumber> {

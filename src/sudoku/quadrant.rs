@@ -1,6 +1,6 @@
-use std::collections::HashSet;
-use crate::{QuadVector, SNumber};
+use crate::{SNumber};
 use error_mapper::{create_new_error, TheResult};
+use std::collections::HashSet;
 
 #[derive(Default, Debug, Copy, Clone, PartialEq)]
 pub(crate) struct Quadrant {
@@ -16,7 +16,7 @@ pub(crate) struct Quadrant {
 }
 
 impl Quadrant {
-    pub(super) fn new(input: QuadVector) -> TheResult<Self> {
+    pub(super) fn new(input: Vec<SNumber>) -> TheResult<Self> {
         //  Validate input length
         Self::validate_input_length(&input)?;
 
@@ -54,7 +54,9 @@ impl Quadrant {
         let mut set = HashSet::new();
         for item in input {
             if *item != 0 && !set.insert(*item) {
-                return Err(create_new_error!("There were duplicate numbers in this input"))
+                return Err(create_new_error!(
+                    "There were duplicate numbers in this input"
+                ));
             }
         }
 
@@ -77,7 +79,7 @@ impl Quadrant {
 
     fn is_number_available_in_quad(self, num: SNumber) -> bool {
         if num == 0 {
-            return true
+            return true;
         }
 
         self.c1 != num
@@ -90,28 +92,22 @@ impl Quadrant {
             && self.c8 != num
             && self.c9 != num
     }
-    
+
     pub(crate) fn get_row_array(&self, row_index: SNumber) -> TheResult<Vec<SNumber>> {
-        
         match row_index {
-            1 => { Ok(vec![self.c1, self.c2, self.c3]) },
-            2 => { Ok(vec![self.c4, self.c5, self.c6]) },
-            3 => { Ok(vec![self.c7, self.c8, self.c9]) },
-            _ => {
-                Err(create_new_error!("Index out of bounds!"))
-            }
+            1 => Ok(vec![self.c1, self.c2, self.c3]),
+            2 => Ok(vec![self.c4, self.c5, self.c6]),
+            3 => Ok(vec![self.c7, self.c8, self.c9]),
+            _ => Err(create_new_error!(format!("Index: {} out of bounds!", row_index))),
         }
     }
-    
+
     pub(crate) fn get_col_array(&self, col_index: SNumber) -> TheResult<Vec<SNumber>> {
-        
         match col_index {
-            1 => { Ok(vec![self.c1, self.c4, self.c7]) },
-            2 => { Ok(vec![self.c2, self.c5, self.c8]) },
-            3 => { Ok(vec![self.c3, self.c6, self.c9]) },
-            _ => {
-                Err(create_new_error!("Index out of bounds!"))
-            }
+            1 => Ok(vec![self.c1, self.c4, self.c7]),
+            2 => Ok(vec![self.c2, self.c5, self.c8]),
+            3 => Ok(vec![self.c3, self.c6, self.c9]),
+            _ => Err(create_new_error!(format!("Index: {} out of bounds!", col_index))),
         }
     }
 }
@@ -300,12 +296,12 @@ mod quad_tests {
 
         assert_eq!(quad.is_number_available_in_quad(0), true);
     }
-    
+
     #[test]
     fn get_row_array_ok_1() {
         let input = vec![9, 8, 7, 6, 5, 4, 3, 2, 1];
         let quad = Quadrant::new(input).unwrap();
-        
+
         assert_eq!(quad.get_row_array(1).unwrap(), vec![9, 8, 7]);
     }
 
@@ -324,13 +320,16 @@ mod quad_tests {
 
         assert_eq!(quad.get_row_array(3).unwrap(), vec![3, 2, 1]);
     }
-    
+
     #[test]
     fn get_row_array_err() {
         let input = vec![9, 8, 7, 6, 5, 4, 3, 2, 1];
         let quad = Quadrant::new(input).unwrap();
-        
-        assert_eq!(quad.get_row_array(5).unwrap_err().error.error_content, "Index out of bounds!");
+
+        assert_eq!(
+            quad.get_row_array(5).unwrap_err().error.error_content,
+            "Index: 5 out of bounds!"
+        );
     }
 
     #[test]
@@ -362,6 +361,9 @@ mod quad_tests {
         let input = vec![9, 8, 7, 6, 5, 4, 3, 2, 1];
         let quad = Quadrant::new(input).unwrap();
 
-        assert_eq!(quad.get_col_array(5).unwrap_err().error.error_content, "Index out of bounds!");
+        assert_eq!(
+            quad.get_col_array(5).unwrap_err().error.error_content,
+            "Index: 5 out of bounds!"
+        );
     }
 }
